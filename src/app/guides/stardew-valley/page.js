@@ -1,20 +1,20 @@
 'use client';
 
-import { useEffect, useRef } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import Link from 'next/link';
 import Head from 'next/head';
 import '../../../styles/main.css';
+import BackToTop from '../../../components/BackToTop';
+import ProgressBar from '../../../components/ProgressBar';
+import IntroAnimation from '../../../components/IntroAnimation';
 
 export default function StardewValleyPage() {
-  // Refs for DOM elements
-  const introAnimationRef = useRef(null);
-  const introBackgroundRef = useRef(null);
-  const introContentRef = useRef(null);
-  const exploreButtonRef = useRef(null);
+  // State to control main content visibility
+  const [showMainContent, setShowMainContent] = useState(false);
+  
+  // Refs for DOM elements that are still directly manipulated
   const mainContentRef = useRef(null);
   const headerRef = useRef(null);
-  const backToTopButtonRef = useRef(null);
-  const progressBarRef = useRef(null);
   const navToggleRef = useRef(null);
   const navListRef = useRef(null);
   const videoElementRef = useRef(null);
@@ -22,70 +22,25 @@ export default function StardewValleyPage() {
 
   useEffect(() => {
     // Store DOM elements
-    const introAnimation = introAnimationRef.current;
-    const introBackground = introBackgroundRef.current;
-    const introContent = introContentRef.current;
-    const exploreButton = exploreButtonRef.current;
     const mainContent = mainContentRef.current;
     const header = headerRef.current;
-    const backToTopButton = backToTopButtonRef.current;
-    const progressBar = progressBarRef.current;
     const navToggle = navToggleRef.current;
     const navList = navListRef.current;
     const videoElement = videoElementRef.current;
     const videoPlaceholder = videoPlaceholderRef.current;
     const body = document.body;
 
-    // Run the animation sequence
-    setTimeout(function() {
-      introAnimation.classList.add('animate');
-    }, 500);
+    // Add no-scroll class to body initially
+    body.classList.add('no-scroll');
     
-    // Button click completes the animation
-    const handleExploreButtonClick = function(e) {
-      e.preventDefault();
-      completeIntroAnimation();
-      
-      // Scroll to introduction section after animation completes
-      setTimeout(function() {
-        const introSection = document.getElementById('introduction');
-        if (introSection) {
-          window.scrollTo({
-            top: introSection.offsetTop - 80,
-            behavior: 'smooth'
-          });
-        }
-      }, 1000);
-    };
-    
-    // Function to complete the intro animation
-    function completeIntroAnimation() {
-      introAnimation.classList.add('complete');
-      
-      // Show main content after animation completes
-      setTimeout(function() {
-        mainContent.classList.add('visible');
-        document.body.style.overflow = 'auto';
-        
-        // IMPORTANT: Completely remove the intro animation element after transition
-        setTimeout(() => {
-          introAnimation.style.display = 'none';
-          // Optional: Remove from DOM entirely
-          introAnimation.remove();
-        }, 2000); // Wait for the animation to complete before removing
-      }, 500);
+    // Check if we should show the intro (skip if returning from another page)
+    const fromGuide = sessionStorage.getItem('fromGuide');
+    if (fromGuide) {
+      setShowMainContent(true);
+      body.classList.remove('no-scroll');
+      sessionStorage.removeItem('fromGuide');
     }
-    
-    // Add click handler
-    exploreButton.addEventListener('click', handleExploreButtonClick);
-    
-    // Handle missing background image
-    const testBg = new Image();
-    testBg.onerror = function() {
-      introBackground.style.backgroundImage = 'linear-gradient(135deg, var(--color-primary) 0%, var(--color-accent) 100%)';
-    };
-    testBg.src = '../assets/images/stardew-valley-bg.jpg';
-    
+
     // Variables for main site functionality
     let lastScrollY = window.scrollY;
     
@@ -110,19 +65,6 @@ export default function StardewValleyPage() {
     
     // Handle scroll events
     function handleScroll() {
-      // Progress bar
-      const winScroll = document.body.scrollTop || document.documentElement.scrollTop;
-      const height = document.documentElement.scrollHeight - document.documentElement.clientHeight;
-      const scrolled = (winScroll / height) * 100;
-      progressBar.style.width = scrolled + "%";
-      
-      // Back to top button visibility
-      if(window.scrollY > 300) {
-        backToTopButton.classList.add('visible');
-      } else {
-        backToTopButton.classList.remove('visible');
-      }
-      
       // Header appearance/disappearance on scroll
       if(window.scrollY > 100) {
         header.classList.add('scrolled');
@@ -140,17 +82,6 @@ export default function StardewValleyPage() {
     }
     
     window.addEventListener('scroll', handleScroll);
-    
-    // Back to top functionality
-    const handleBackToTopClick = function(e) {
-      e.preventDefault();
-      window.scrollTo({
-        top: 0,
-        behavior: 'smooth'
-      });
-    };
-    
-    backToTopButton.addEventListener('click', handleBackToTopClick);
     
     // Mobile navigation toggle
     if(navToggle) {
@@ -273,8 +204,6 @@ export default function StardewValleyPage() {
       window.removeEventListener('scroll', handleScroll);
       window.removeEventListener('scroll', highlightTocItem);
       window.removeEventListener('scroll', revealOnScroll);
-      exploreButton.removeEventListener('click', handleExploreButtonClick);
-      backToTopButton.removeEventListener('click', handleBackToTopClick);
       
       if (videoElement) {
         videoElement.removeEventListener('error', function() {});
@@ -290,6 +219,12 @@ export default function StardewValleyPage() {
     };
   }, []); // Empty dependency array means this runs once on mount
 
+  // Handle intro animation completion
+  const handleIntroComplete = () => {
+    setShowMainContent(true);
+    document.body.classList.remove('no-scroll');
+  };
+
   return (
     <>
       <Head>
@@ -298,35 +233,30 @@ export default function StardewValleyPage() {
         <link rel="icon" href="../assets/images/favicon.ico" type="image/x-icon" />
       </Head>
 
-      {/* Intro Animation */}
-      <div className="intro-animation" id="intro-animation" ref={introAnimationRef}>
-        <div 
-          className="intro-background" 
-          id="intro-background" 
-          ref={introBackgroundRef} 
-          style={{backgroundImage: "url('../assets/images/stardew-valley-bg.jpg')"}}
-        ></div>
-        <div className="intro-content" id="intro-content" ref={introContentRef}>
-          <h1 className="intro-title">Stardew Valley Guide</h1>
-          <p className="intro-subtitle">Your complete companion to farm life and adventures</p>
-          <a href="#introduction" className="intro-cta" id="explore-button" ref={exploreButtonRef}>Start Reading</a>
-        </div>
-      </div>
+      {/* Intro Animation - Now using component */}
+      <IntroAnimation 
+        backgroundImage="../assets/images/stardew-valley-bg.jpg"
+        title="Stardew Valley Guide"
+        subtitle="Your complete companion to farm life and adventures"
+        ctaText="Start Reading"
+        targetId="introduction"
+        onComplete={handleIntroComplete}
+      />
 
       {/* Main Content */}
-      <div className="main-content" id="main-content" ref={mainContentRef}>
-        {/* Progress Bar */}
-        <div className="progress-bar" id="progress-bar" ref={progressBarRef}></div>
+      <div className={`main-content ${showMainContent ? 'visible' : ''}`} id="main-content" ref={mainContentRef}>
+        {/* Progress Bar - Now using component */}
+        <ProgressBar />
         
         {/* Header */}
         <header className="header" id="main-header" ref={headerRef}>
           <div className="container">
             <div className="header__inner">
-              <Link href="../index.html" className="header__logo">GameGuides</Link>
+              <Link href="/" className="header__logo">GameGuides</Link>
               <nav className="nav" aria-label="Main Navigation">
                 <ul className="nav__list" ref={navListRef}>
                   <li className="nav__item">
-                    <Link href="../index.html" className="nav__link">Home</Link>
+                    <Link href="/" className="nav__link">Home</Link>
                   </li>
                   <li className="nav__item">
                     <a href="#introduction" className="nav__link">Overview</a>
@@ -535,8 +465,8 @@ export default function StardewValleyPage() {
             </div>
         </footer>
         
-        {/* Back to Top Button */}
-        <a href="#" id="back-to-top" className="back-to-top" aria-label="Back to top" ref={backToTopButtonRef}>↑</a>
+        {/* Back to Top Button - Now using component */}
+        <BackToTop />
       </div>
     </>
   );
