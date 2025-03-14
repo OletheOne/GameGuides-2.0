@@ -1,43 +1,37 @@
 import mongoose from 'mongoose';
+import { defineModel } from '@/lib/db';
 
-// Define the Guide schema
-const GuideSchema = new mongoose.Schema(
-  {
-    title: {
-      type: String,
-      required: [true, 'Please provide a title for this guide'],
-      maxlength: [100, 'Title cannot be more than 100 characters'],
-    },
-    slug: {
-      type: String,
-      required: [true, 'Please provide a slug for this guide'],
-      unique: true,
-      lowercase: true,
-    },
-    content: {
-      type: String,
-      required: [true, 'Please provide content for this guide'],
-    },
-    videoUrl: {
-      type: String,
-    },
-    coverImage: {
-      type: String,
-      default: '/images/default-cover.jpg',
-    },
-    featured: {
-      type: Boolean,
-      default: false,
-    },
-    publishedDate: {
-      type: Date,
-      default: Date.now,
-    },
+// Define Guide schema
+const GuideSchema = new mongoose.Schema({
+  title: {
+    type: String,
+    required: [true, 'Title is required'],
   },
-  {
-    timestamps: true, // Adds createdAt and updatedAt
-  }
-);
+  content: {
+    type: String,
+    required: [true, 'Content is required'],
+  },
+  videoUrl: {
+    type: String,
+    required: [true, 'Video URL is required'],
+  },
+  createdAt: {
+    type: Date,
+    default: Date.now,
+  },
+  updatedAt: {
+    type: Date,
+    default: Date.now,
+  },
+});
 
-// Prevent model overwrite error in development with hot reloading
-export default mongoose.models.Guide || mongoose.model('Guide', GuideSchema);
+// Pre-save hook to update the updatedAt field
+GuideSchema.pre('save', function(next) {
+  this.updatedAt = Date.now();
+  next();
+});
+
+// Use the defineModel helper to prevent model recompilation errors
+const Guide = defineModel('Guide', GuideSchema);
+
+export default Guide;

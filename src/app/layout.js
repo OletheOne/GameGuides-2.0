@@ -1,16 +1,10 @@
 import { Inter } from 'next/font/google';
-import Header from '@/components/layout/Header';
-import Footer from '@/components/layout/Footer';
-import BackToTop from '@/components/ui/BackToTop';
-import ProgressBar from '@/components/ui/ProgressBar';
-import '@/styles/globals.css';
-import '@/styles/animations.css';
+import '../styles/main.css';
 
 // Load Inter font
 const inter = Inter({ 
   subsets: ['latin'],
-  variable: '--font-inter',
-  display: 'swap'
+  display: 'swap',
 });
 
 export const metadata = {
@@ -21,17 +15,9 @@ export const metadata = {
 
 export default function RootLayout({ children }) {
   return (
-    <html lang="en" className={inter.variable}>
+    <html lang="en" className={inter.className}>
       <body>
-        <ProgressBar />
-        <Header />
-        
-        <div id="main-content" className="main-content visible">
-          {children}
-        </div>
-        
-        <Footer />
-        <BackToTop />
+        {children}
       </body>
     </html>
   );

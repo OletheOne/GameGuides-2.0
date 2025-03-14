@@ -1,31 +1,29 @@
 {
-    "name": "gameguides-nextjs",
-    "version": "1.0.0",
-    "description": "A modern Next.js website hosting video game walkthroughs with interactive features",
-    "scripts": {
-      "dev": "next dev",
-      "build": "next build",
-      "start": "PORT=3001 next start",
-      "lint": "next lint"
-    },
-    "keywords": [
-      "video games",
-      "walkthroughs",
-      "guides",
-      "nextjs"
-    ],
-    "author": "Your Name",
-    "license": "MIT",
-    "dependencies": {
-      "mongoose": "^8.0.0",
-      "next": "^14.0.0",
-      "react": "^18.2.0",
-      "react-dom": "^18.2.0",
-      "framer-motion": "^10.16.0",
-      "react-intersection-observer": "^9.5.0"
-    },
-    "devDependencies": {
-      "eslint": "^8.50.0",
-      "eslint-config-next": "^14.0.0"
-    }
+  "name": "gameguides-nextjs",
+  "version": "1.0.0",
+  "description": "A website hosting video game walkthroughs with direct conversion from HTML to Next.js",
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "PORT=3001 next start",
+    "lint": "next lint"
+  },
+  "keywords": [
+    "video games",
+    "walkthroughs",
+    "guides",
+    "nextjs"
+  ],
+  "author": "Your Name",
+  "license": "MIT",
+  "dependencies": {
+    "mongoose": "^8.0.0",
+    "next": "^14.0.0",
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0"
+  },
+  "devDependencies": {
+    "eslint": "^8.50.0",
+    "eslint-config-next": "^14.0.0"
   }
+}

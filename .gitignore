@@ -43,11 +43,3 @@ next-env.d.ts
 
 # MongoDB local data
 /data
-
-# Logs
-logs
-*.log
-
-# System specific files
-Thumbs.db
-desktop.ini

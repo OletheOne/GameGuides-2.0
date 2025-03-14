@@ -1,6 +1,7 @@
 import mongoose from 'mongoose';
 
-// Cache the database connection
+// Connection state tracking
+const MONGODB_URI = process.env.MONGODB_URI || 'mongodb://localhost:27017/walkthroughs';
 let cached = global.mongoose;
 
 if (!cached) {
@@ -8,43 +9,46 @@ if (!cached) {
 }
 
 /**
- * Connect to MongoDB using cached connection if available
- * @returns {Promise<mongoose.Connection>}
+ * Connect to MongoDB with connection pooling
+ * Reuses existing connection if available
  */
-export async function connectToDatabase() {
+export async function connectDB() {
+  // Return existing connection if available
   if (cached.conn) {
     return cached.conn;
   }
 
+  // Create new connection promise if not already pending
   if (!cached.promise) {
     const opts = {
-      bufferCommands: false,
+      useNewUrlParser: true,
+      useUnifiedTopology: true,
     };
 
-    cached.promise = mongoose.connect(process.env.MONGODB_URI, opts).then((mongoose) => {
-      console.log('MongoDB connected');
-      return mongoose;
-    });
+    cached.promise = mongoose.connect(MONGODB_URI, opts)
+      .then((mongoose) => {
+        console.log('MongoDB connected successfully');
+        return mongoose;
+      })
+      .catch((error) => {
+        console.error('MongoDB connection error:', error);
+        throw error;
+      });
   }
 
   try {
     cached.conn = await cached.promise;
   } catch (e) {
     cached.promise = null;
-    console.error('MongoDB connection error:', e);
     throw e;
   }
 
   return cached.conn;
 }
 
-// Graceful shutdown
-['SIGTERM', 'SIGINT'].forEach((signal) => {
-  process.on(signal, async () => {
-    if (cached.conn) {
-      await mongoose.disconnect();
-      console.log('MongoDB connection closed');
-      process.exit(0);
-    }
-  });
-});
+// Define model function to prevent model recompilation errors
+export function defineModel(modelName, schema) {
+  return mongoose.models[modelName] 
+    ? mongoose.model(modelName)
+    : mongoose.model(modelName, schema);
+}
