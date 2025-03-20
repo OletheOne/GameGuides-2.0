@@ -1,3 +1,5 @@
+#***THIS USES REACT AND IS A LITTLE JENKY***
+
 # GameGuides - Next.js Gaming Walkthrough Website
 
 Welcome to GameGuides, a modern, interactive website for comprehensive video game walkthroughs using Next.js, React, and MongoDB.
