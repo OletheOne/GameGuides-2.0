@@ -1,4 +1,4 @@
-#***THIS USES REACT AND IS A LITTLE JENKY***
+# ***THIS USES REACT AND IS A LITTLE JENKY***
 
 # GameGuides - Next.js Gaming Walkthrough Website
 
